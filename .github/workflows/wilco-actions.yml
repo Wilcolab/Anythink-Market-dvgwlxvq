@@ -22,11 +22,10 @@ jobs:
         uses: supercharge/mongodb-github-action@1.6.0
         with:
           mongodb-version: "4.4"
-
+  
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
-        secrets: ${{"WILCO_ENGINE_URL":"your_secret_value"}}
-
+          secrets: '{"WILCO_ENGINE_URL": "${{ secrets.WILCO_ENGINE_URL }}"}'
       - name: Wilco checks
         id: Wilco
         uses: trywilco/actions@main
