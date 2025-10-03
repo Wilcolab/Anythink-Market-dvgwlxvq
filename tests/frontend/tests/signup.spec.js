@@ -7,9 +7,17 @@ import {
 } from "../requestValidator";
 import { uid } from "uid";
 
-const username = `user${(Math.random() + 1).toString(36).substring(7)}`;
+function secureRandomString(prefix, length = 8) {
+  // Create a random string securely using browser crypto API
+  const array = new Uint32Array(length);
+  window.crypto.getRandomValues(array);
+  // Convert to base36 and join
+  const randomStr = Array.from(array, n => n.toString(36)).join('').substring(0, length);
+  return `${prefix}${randomStr}`;
+}
+const username = secureRandomString('user');
 const email = `${username}@email.com`;
-const password = `pass${(Math.random() + 1).toString(36).substring(7)}`;
+const password = secureRandomString('pass');
 const token =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZWE2MjAxZjg3MjE1OGMzMTE1YWI0ZSIsInVzZXJuYW1lIjoidXNlcjJ3d3FlIiwiZXhwIjoxNjgxNDg1Mjk3LCJpYXQiOjE2NzYzMDQ4OTd9.Z45FqelGgXLU4q6xkhw_fTHZ5GXoVsx0vI_HoI3ccDo";
 
