@@ -1,4 +1,6 @@
 name: Build and deploy to Kubernetes
+permissions:
+  contents: read
 on:
   push:
     branches:
