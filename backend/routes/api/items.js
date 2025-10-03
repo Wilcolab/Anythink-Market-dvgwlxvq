@@ -6,6 +6,13 @@ var User = mongoose.model("User");
 var auth = require("../auth");
 const { sendEvent } = require("../../lib/event");
 
+// Rate limiter middleware for comment deletion
+var rateLimit = require('express-rate-limit');
+const deleteCommentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // limit each IP to 10 comment deletions per windowMs
+  message: 'Too many delete requests from this IP, please try again later.'
+});
 // Preload item objects on routes with ':item'
 router.param("item", function(req, res, next, slug) {
   Item.findOne({ slug: slug })
@@ -310,22 +317,23 @@ router.post("/:item/comments", auth.required, function(req, res, next) {
     .catch(next);
 });
 
-router.delete("/:item/comments/:comment", auth.required, function(
-  req,
-  res,
-  next
-) {
-  req.item.comments.remove(req.comment._id);
-  req.item
-    .save()
-    .then(
-      Comment.find({ _id: req.comment._id })
-        .remove()
-        .exec()
-    )
-    .then(function() {
-      res.sendStatus(204);
-    });
-});
+router.delete(
+  "/:item/comments/:comment",
+  auth.required,
+  deleteCommentLimiter,
+  function(req, res, next) {
+    req.item.comments.remove(req.comment._id);
+    req.item
+      .save()
+      .then(
+        Comment.find({ _id: req.comment._id })
+          .remove()
+          .exec()
+      )
+      .then(function() {
+        res.sendStatus(204);
+      });
+  }
+);
 
 module.exports = router;
